@@ -25,97 +25,99 @@ def get_value(book):
     try:
         googleId = book['id']
     except KeyError:
-        googleId = "NULL"
+        googleId = None
 
     try:
         title = book['volumeInfo']['title']
     except KeyError:
-        title = "NULL"
+        title = None
 
     try:
-        authors = f"ARRAY{book['volumeInfo']['authors']}"
+        authors = book['volumeInfo']['authors']
+        authors = str(set(authors))
     except KeyError:
-        authors = "NULL"
+        authors = None
 
     try:
         pub = book['volumeInfo']['publisher']
     except KeyError:
-        pub = "NULL"
+        pub = None
 
     try:
         publishedDate = book['volumeInfo']['publishedDate']
     except KeyError:
-        publishedDate = "NULL"
+        publishedDate = None
 
     try:
         description = book['volumeInfo']['description']
     except KeyError:
-        description = "NULL"
+        description = None
 
     try:
         isbn = book['volumeInfo']['industryIdentifiers'][0]['identifier']
     except KeyError:
-        isbn = "NULL"
+        isbn = None
 
     try:
-        pageCount = f"ARRAY{book['volumeInfo']['pageCount']}"
+        pageCount = book['volumeInfo']['pageCount']
     except KeyError:
-        pageCount = "NULL"
+        pageCount = None
 
     try:
         categories = book['volumeInfo']['categories']
+        categories = str(set(categories))
     except KeyError:
-        categories = "NULL"
+        categories = None
 
     try:
         thumbnail = book['volumeInfo']['imageLinks']['thumbnail']
     except KeyError:
-        thumbnail = "NULL"
+        thumbnail = None
 
     try:
         smallThumbnail = book['volumeInfo']['imageLinks']['smallThumbnail']
     except KeyError:
-        smallThumbnail = "NULL"
+        smallThumbnail = None
 
     try:
         lang = book['volumeInfo']['language']
     except KeyError:
-        lang = "NULL"
+        lang = None
 
     try:
         webReaderLink = book['accessInfo']['webReaderLink']
     except KeyError:
-        webReaderLink = "NULL"
+        webReaderLink = None
 
     try:
         textSnippet = book['searchInfo']['textSnippet']
     except KeyError:
-        textSnippet = "NULL"
+        textSnippet = None
 
     try:
         isEbook = book['saleInfo']['isEbook']
     except KeyError:
-        isEbook = "NULL"
+        isEbook = None
 
     try:
         averageRating = book['volumeInfo']['averageRating']
     except KeyError:
-        averageRating = "NULL"
+        averageRating = None
 
     try:
         maturityRating = book['volumeInfo']['maturityRating']
     except KeyError:
-        maturityRating = "NULL"
+        maturityRating = None
 
     try:
         ratingsCount = book['volumeInfo']['ratingsCount']
     except KeyError:
-        ratingsCount = "NULL"
+        ratingsCount = None
 
     try:
         subtitle = book['volumeInfo']['subtitle']
     except KeyError:
-        subtitle = "NULL"
+        subtitle = None
 
     value = [googleId, title, authors, publisher, publishedDate,
              description, isbn, pageCount, categories, thumbnail,
@@ -143,18 +145,16 @@ cursor = connection.cursor()
 
 if __name__ == "__main__":
     for entry in values:
-        query = sql.SQL(
-"""
-INSERT INTO gb_test
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-"""         .format(entry)
-        )
+        query = sql.SQL("INSERT INTO gb_test VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
         try:
-            cursor.execute(query)
+            cursor.execute(query, entry)
         except Exception as err:
             logging.error(f"Error: {err}")
+            connection.rollback()
+        else:
+            connection.commit()
 
-    connection.commit()
+
     cursor.close()
     connection.close()
 
