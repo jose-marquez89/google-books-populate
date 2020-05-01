@@ -127,15 +127,20 @@ def get_value(book):
 
     return value
 
+
 for book in books:
     value = get_value(book)
     values.append(value)
 
 
 # TODO: make a call to the api for the maximum allowable results - 40
-# TODO: iterate through pages, increasing index by 40 at time until less than 40 results are returned
-# TODO: cache the api call or the index position of publishers so that they are not repeated
-# TODO: account for missing/null values
+
+# TODO: iterate through pages, increasing index by 40
+#       at a time until less than 40 results are returned
+
+# TODO: cache the api call or the index position of
+#       publishers so that they are not repeated
+
 # TODO: query the database; add book to database (rate limit)
 
 DATABASE_URL = os.environ["DATABASE_URL"]
@@ -145,7 +150,11 @@ cursor = connection.cursor()
 
 if __name__ == "__main__":
     for entry in values:
-        query = sql.SQL("INSERT INTO gb_test VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+        query = sql.SQL(
+            "INSERT INTO gb_test VALUES "
+            "(%s, %s, %s, %s, %s, %s, %s, "
+            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        )
         try:
             cursor.execute(query, entry)
         except Exception as err:
@@ -154,7 +163,5 @@ if __name__ == "__main__":
         else:
             connection.commit()
 
-
     cursor.close()
     connection.close()
-
