@@ -289,7 +289,7 @@ def run(term_csv):
         start = shelf['start_position']
     except KeyError:
         shelf['start_position'] = 0
-        start = shelf['start_postition']
+        start = shelf['start_position']
 
     for i in range(start, len(terms)):
         complete_process = get_all_books(terms[i][0], i)
