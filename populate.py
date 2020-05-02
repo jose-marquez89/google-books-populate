@@ -299,6 +299,8 @@ def run(term_csv):
             shelf.close()
             exit()
 
+    shelf.close()
+
 
 if __name__ == "__main__":
     run('publishers.csv')

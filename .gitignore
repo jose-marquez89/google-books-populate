@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Shelf file
+index_shelf
+
 # C extensions
 *.so
 
