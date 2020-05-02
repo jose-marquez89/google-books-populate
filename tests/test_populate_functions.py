@@ -1,7 +1,9 @@
 import unittest
 import requests
 
-from populate import gb_url, request_and_execute
+from populate import gb_url
+from populate import request_and_execute
+from populate import get_all_books
 
 
 class TestPopulateFunctions(unittest.TestCase):
@@ -33,3 +35,19 @@ class TestPopulateFunctions(unittest.TestCase):
         self.assertTrue(
             request_and_execute("Simon & Schuster", 40)
         )
+        
+    def test_threaded_process(self):
+        """
+        Test the function that gets all books from a list of
+        search terms
+        """
+        terms = ['Penguin Random House', 'Hachette Livre',
+                 'HarperCollins', 'Simon & Schuster']
+                 
+        for term in terms:
+            complete_process = get_all_books(term, terms.index(term))
+            
+            if complete_process is not None:
+                self.assertIs(type(complete_process), int)
+            else:
+                self.assertIs(type(complete_process), type(None))
