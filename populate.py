@@ -1,5 +1,7 @@
 import os
+import csv
 import time
+import shelve
 import requests
 import logging
 import threading
@@ -268,3 +270,35 @@ def get_all_books(search_term, search_index):
         thread.join()
 
     return None
+
+
+def run(term_csv):
+    """
+    Gets list of search terms from csv and run book retrieval process.
+    Upon an http error, search index will be stored and process
+    will pick back up from last index on next pass
+    """
+    shelf = shelve.open('index_shelf')
+
+    # read in search data
+    with open(term_csv) as search_data:
+        reader = csv.reader(search_data)
+        terms = [row for row in reader]
+
+    try:
+        start = shelf['start_position']
+    except KeyError:
+        shelf['start_position'] = 0
+        start = shelf['start_postition']
+
+    for i in range(start, len(terms)):
+        complete_process = get_all_books(terms[i][0], i)
+
+        if complete_process is not None:
+            shelf['start_position'] = i
+            shelf.close()
+            exit()
+
+
+if __name__ == "__main__":
+    run('publishers.csv')
