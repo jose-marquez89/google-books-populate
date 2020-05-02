@@ -35,7 +35,7 @@ class TestPopulateFunctions(unittest.TestCase):
         self.assertTrue(
             request_and_execute("Simon & Schuster", 40)
         )
-        
+
     def test_threaded_process(self):
         """
         Test the function that gets all books from a list of
@@ -43,10 +43,10 @@ class TestPopulateFunctions(unittest.TestCase):
         """
         terms = ['Penguin Random House', 'Hachette Livre',
                  'HarperCollins', 'Simon & Schuster']
-                 
+
         for term in terms:
             complete_process = get_all_books(term, terms.index(term))
-            
+
             if complete_process is not None:
                 self.assertIs(type(complete_process), int)
             else:
