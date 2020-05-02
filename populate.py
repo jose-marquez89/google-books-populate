@@ -1,6 +1,7 @@
+import os
+import time
 import requests
 import logging
-import os
 import threading
 from urllib.parse import urljoin, quote
 
@@ -9,9 +10,6 @@ from psycopg2 import sql
 
 FORMAT = "%(asctime)s - %(message)s"
 logging.basicConfig(level=logging.DEBUG, format=FORMAT)
-
-# books = book_data['items']
-# values = []
 
 
 def gb_url(search_term, index=None):
@@ -157,37 +155,12 @@ def get_value(book):
     return value
 
 
-def request_and_execute(search_term, starting_index):
-    """
-    Creates a GET request to google books API, collects data, then uses
-    this data to execute a SQL query with connection to database
-    """
-
-    # create connection
+def execute_queries(data):
+    """Creates SQL connection, execute query, close connection"""
     DATABASE_URL = os.environ["DATABASE_URL"]
 
     connection = psycopg2.connect(DATABASE_URL)
     cursor = connection.cursor()
-
-    # GET request
-    url = gb_url(search_term, index=starting_index)
-    response = requests.get(url)
-
-    try:
-        response.raise_for_status()
-    except Exception as err:
-        logging.error(err)
-
-        return None
-
-    data = response.json()
-
-    if 'items' not in data.keys():
-        logging.info(
-            f"No items for {search_term} at index {starting_index}"
-        )
-
-        return None
 
     books = data['items']
     values = []
@@ -212,12 +185,86 @@ def request_and_execute(search_term, starting_index):
     cursor.close()
     connection.close()
 
+
+def request_and_execute(search_term, starting_index):
+    """
+    Creates a GET request to google books API, collects data, then uses
+    this data to execute a SQL query with connection to database
+    """
+    # GET request
+    url = gb_url(search_term, index=starting_index)
+    response = requests.get(url)
+
+    try:
+        response.raise_for_status()
+    except Exception as err:
+        logging.error(err)
+
+        return None
+
+    data = response.json()
+
+    if 'items' not in data.keys():
+        logging.info(
+            f"No items for {search_term} at index {starting_index}"
+        )
+
+        return None
+
+    execute_queries(data)
+
     return True
 
 
-def get_publisher_books():
-
+def get_all_books(search_term, search_index):
     """Gets books data from index 0 of API request pages, starts
     necessary threads to collect other pages
+
+    search_term: the term used in the url call to API
+
+    search_index: the index on which the function begins search
     """
-    pass
+    initial_url = gb_url(search_term)
+    response = requests.get(initial_url)
+
+    # main connection
+    DATABASE_URL = os.environ["DATABASE_URL"]
+
+    connection = psycopg2.connect(DATABASE_URL)
+    cursor = connection.cursor()
+
+    try:
+        response.raise_for_status()
+    except Exception as err:
+        logging.error(err)
+
+        # return search_index to shelf and begin on this
+        # index upon next pass
+        return search_index
+
+    data = response.json()
+
+    if 'items' not in data.keys():
+        logging.info(f"No items for {search_term}")
+
+        return None
+
+    # reduce unnecessary calls by using 'totalItems' to approximate
+    total_items = (data['totalItems'] // 100) * 100
+
+    execute_queries(data)
+
+    threads = []
+
+    for index in range(40, total_items, 40):
+        thread_obj = threading.Thread(target=request_and_execute,
+                                      args=(search_term, index))
+
+        threads.append(thread_obj)
+        thread_obj.start()
+
+    # wait for all threads to finish
+    for thread in threads:
+        thread.join()
+
+    return None
