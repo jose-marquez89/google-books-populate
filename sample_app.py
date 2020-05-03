@@ -1,5 +1,7 @@
 from flask import Flask
+import os
 
+DATABASE_URL = os.environ["DATABASE_URL"]
 # print a nice greeting.
 def say_hello(username = "World"):
     return '<p>Hello %s!</p>\n' % username
@@ -30,5 +32,5 @@ application.add_url_rule('/<username>', 'hello', (lambda username:
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
-    application.debug = True
+    application.debug = False
     application.run(host="0.0.0.0")
