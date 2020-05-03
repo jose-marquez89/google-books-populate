@@ -6,7 +6,7 @@ ENV PYTHONBUFFERED=1
 ### libpq-dev is for building psycopg2
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y python3-pip python3-dev libpq-dev
+    apt-get install -y python3-pip python3-dev libpq-dev cron
 
 ENV SHELL=/bin/bash
 
@@ -21,6 +21,9 @@ RUN pip3 install -r requirements.txt
 
 COPY . /app
 
-ENTRYPOINT ["python3"]
+RUN chmod +x run-populate
+ADD rootCrontab /etc/cron.d/populate-cron
 
-CMD ["populate.py"]
+RUN chmod 0644 /etc/cron.d/populate-cron
+
+CMD cron && tail -f /app/background.log

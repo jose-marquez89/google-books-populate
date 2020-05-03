@@ -1,0 +1,5 @@
+#! /bin/bash
+
+echo "STARTING POPULATE..." > background.log
+
+python3 /app/populate.py

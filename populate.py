@@ -172,7 +172,7 @@ def execute_queries(data):
 
     for entry in values:
         query = sql.SQL(
-            "INSERT INTO gb_test VALUES "
+            "INSERT INTO gb_data VALUES "
             "(%s, %s, %s, %s, %s, %s, %s, "
             "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         )
@@ -303,4 +303,4 @@ def run(term_csv):
 
 
 if __name__ == "__main__":
-    run('publishers.csv')
+    run('significant_publishers.csv')
