@@ -1,1 +1,1 @@
-10 11 * * * root /app/run-populate
+20 11 * * * root /app/run-populate
