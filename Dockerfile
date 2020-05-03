@@ -21,6 +21,8 @@ RUN pip3 install -r requirements.txt
 
 COPY . /app
 
+EXPOSE 80
+
 RUN chmod +x run-populate
 ADD rootCrontab /etc/cron.d/populate-cron
 
