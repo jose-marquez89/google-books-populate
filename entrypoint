@@ -1,0 +1,5 @@
+#! /bin/bash
+
+cron
+
+python3 sample_app.py

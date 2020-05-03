@@ -26,8 +26,8 @@ ADD rootCrontab /etc/cron.d/populate-cron
 
 RUN chmod 0644 /etc/cron.d/populate-cron
 
-RUN cron
+RUN chmod +x entrypoint
 
 EXPOSE 5000
 
-CMD ["python3", "sample_app.py"]
+CMD ["./entrypoint"]
