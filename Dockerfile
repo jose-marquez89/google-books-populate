@@ -21,11 +21,13 @@ RUN pip3 install -r requirements.txt
 
 COPY . /app
 
-EXPOSE 80
-
 RUN chmod +x run-populate
 ADD rootCrontab /etc/cron.d/populate-cron
 
 RUN chmod 0644 /etc/cron.d/populate-cron
 
-CMD cron && tail -f /app/background.log
+RUN cron
+
+EXPOSE 5000
+
+CMD ["python3", "sample_app.py"]
